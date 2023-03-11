@@ -1,0 +1,108 @@
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: user login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: login
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: user registration
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: register
+      tags:
+      - auth
+  /user/balance/orders:
+    get:
+      consumes:
+      - application/json
+      description: get user balance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: balance
+      tags:
+      - balance
+  /user/balance/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: withdraw balance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: withdraw
+      tags:
+      - balance
+  /user/balance/withdrawals:
+    get:
+      consumes:
+      - application/json
+      description: user withdrawals
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: withdrawals
+      tags:
+      - withdrawals
+  /user/orders:
+    get:
+      consumes:
+      - application/json
+      description: order get
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: get
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      description: order create
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: create
+      tags:
+      - orders
+swagger: "2.0"

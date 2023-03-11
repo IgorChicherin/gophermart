@@ -18,11 +18,18 @@ func NewRouter() *gin.Engine {
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	docs.SwaggerInfo.BasePath = "/api/"
+
 	auth := new(controllers.AuthController)
+	orders := new(controllers.OrdersController)
+	balance := new(controllers.BalanceController)
+	withdraw := new(controllers.WithdrawController)
 
 	api := router.Group("/api")
 	{
 		auth.Route(api)
+		orders.Route(api)
+		balance.Route(api)
+		withdraw.Route(api)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
