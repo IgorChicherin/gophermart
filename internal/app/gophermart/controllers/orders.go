@@ -1,15 +1,19 @@
 package controllers
 
 import (
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type OrdersController struct {
+	UserRepository repositories.UserRepository
 }
 
 func (oc OrdersController) Route(api *gin.RouterGroup) {
-	orders := api.Group("/user")
+	middleware := middlewares.AuthMiddleware(oc.UserRepository)
+	orders := api.Group("/user").Use(middleware)
 	{
 		orders.POST("/orders", oc.orderCreate)
 		orders.GET("/orders", oc.orderGet)

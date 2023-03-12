@@ -1,15 +1,19 @@
 package controllers
 
 import (
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type BalanceController struct {
+	UserRepository repositories.UserRepository
 }
 
 func (bc BalanceController) Route(api *gin.RouterGroup) {
-	balance := api.Group("/user")
+	middleware := middlewares.AuthMiddleware(bc.UserRepository)
+	balance := api.Group("/user").Use(middleware)
 	{
 		balance.GET("/balance", bc.getUserBalance)
 		balance.POST("/balance/withdraw", bc.balanceWithdraw)

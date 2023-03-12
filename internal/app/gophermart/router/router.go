@@ -3,13 +3,16 @@ package router
 import (
 	docs "github.com/IgorChicherin/gophermart/api"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/controllers"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v4"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewRouter() *gin.Engine {
+func NewRouter(conn *pgx.Conn, authService authlib.AuthService) *gin.Engine {
 	router := gin.New()
 	router.RedirectTrailingSlash = false
 
@@ -19,10 +22,12 @@ func NewRouter() *gin.Engine {
 
 	docs.SwaggerInfo.BasePath = "/api/"
 
-	auth := new(controllers.AuthController)
-	orders := new(controllers.OrdersController)
-	balance := new(controllers.BalanceController)
-	withdraw := new(controllers.WithdrawController)
+	userRepo := repositories.NewUserRepository(conn, authService)
+
+	auth := controllers.AuthController{UserRepository: userRepo}
+	orders := controllers.OrdersController{UserRepository: userRepo}
+	balance := controllers.BalanceController{UserRepository: userRepo}
+	withdraw := controllers.WithdrawController{UserRepository: userRepo}
 
 	api := router.Group("/api")
 	{

@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type AuthController struct {
+	UserRepository repositories.UserRepository
 }
 
 func (ac AuthController) Route(api *gin.RouterGroup) {

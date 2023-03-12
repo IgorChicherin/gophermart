@@ -1,0 +1,5 @@
+BEGIN;
+    DROP TABLE IF EXISTS users;
+    DROP TABLE IF EXISTS orders;
+    DROP TYPE IF EXISTS status_type;
+COMMIT;
