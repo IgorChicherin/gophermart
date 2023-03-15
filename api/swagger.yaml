@@ -1,37 +1,29 @@
+definitions:
+  models.DefaultErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.Login:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: user login
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: json
-      summary: login
-      tags:
-      - auth
-  /auth/register:
-    post:
-      consumes:
-      - application/json
-      description: user registration
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: json
-      summary: register
-      tags:
-      - auth
-  /user/balance/orders:
+  /user/balance:
     get:
       consumes:
       - application/json
@@ -76,6 +68,32 @@ paths:
       summary: withdrawals
       tags:
       - withdrawals
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: user login
+      parameters:
+      - description: login
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: login
+      tags:
+      - auth
   /user/orders:
     get:
       consumes:
@@ -105,4 +123,36 @@ paths:
       summary: create
       tags:
       - orders
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: user registration
+      parameters:
+      - description: user account
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "404":
+          description: Not Found
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "500":
+          description: Internal Server Error
+      summary: register
+      tags:
+      - auth
 swagger: "2.0"

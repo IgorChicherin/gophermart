@@ -24,7 +24,7 @@ func NewRouter(conn *pgx.Conn, authService authlib.AuthService) *gin.Engine {
 
 	userRepo := repositories.NewUserRepository(conn, authService)
 
-	auth := controllers.AuthController{UserRepository: userRepo}
+	auth := controllers.AuthController{UserRepository: userRepo, AuthService: authService}
 	orders := controllers.OrdersController{UserRepository: userRepo}
 	balance := controllers.BalanceController{UserRepository: userRepo}
 	withdraw := controllers.WithdrawController{UserRepository: userRepo}
