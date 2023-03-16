@@ -149,7 +149,7 @@ const docTemplate = `{
             "post": {
                 "description": "order create",
                 "consumes": [
-                    "application/json"
+                    "text/plain"
                 ],
                 "produces": [
                     "application/json"
@@ -160,10 +160,37 @@ const docTemplate = `{
                 "summary": "create",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "json"
+                            "$ref": "#/definitions/models.DefaultErrorResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
                     }
                 }
             }
@@ -249,6 +276,9 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         }

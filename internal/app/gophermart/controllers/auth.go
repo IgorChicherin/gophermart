@@ -47,24 +47,24 @@ func (ac AuthController) login(c *gin.Context) {
 
 	if err != nil {
 		log.Errorln(err)
-		c.Status(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	if !hasLogin {
-		c.Status(http.StatusUnauthorized)
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	user, err := ac.UserRepository.GetUser(userData.Login)
 
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	if !ac.AuthService.Equals(user.Password, userData.Password) {
-		c.Status(http.StatusUnauthorized)
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (ac AuthController) register(c *gin.Context) {
 
 	if err != nil {
 		log.Errorln(err)
-		c.Status(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
@@ -112,7 +112,7 @@ func (ac AuthController) register(c *gin.Context) {
 
 	if err != nil {
 		log.Errorln(err)
-		c.Status(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 

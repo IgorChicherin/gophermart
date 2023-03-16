@@ -4,6 +4,7 @@ import (
 	docs "github.com/IgorChicherin/gophermart/api"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/controllers"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -23,9 +24,11 @@ func NewRouter(conn *pgx.Conn, authService authlib.AuthService) *gin.Engine {
 	docs.SwaggerInfo.BasePath = "/api/"
 
 	userRepo := repositories.NewUserRepository(conn, authService)
+	orderRepo := repositories.NewOrderRepository(conn)
+	orderControllerUseCase := usecases.NewCreateOrderUseCase(conn, userRepo, orderRepo)
 
 	auth := controllers.AuthController{UserRepository: userRepo, AuthService: authService}
-	orders := controllers.OrdersController{UserRepository: userRepo}
+	orders := controllers.OrdersController{CreateOrderUseCase: orderControllerUseCase}
 	balance := controllers.BalanceController{UserRepository: userRepo}
 	withdraw := controllers.WithdrawController{UserRepository: userRepo}
 

@@ -19,6 +19,8 @@ definitions:
         type: string
       password:
         type: string
+      user_id:
+        type: integer
     type: object
 info:
   contact: {}
@@ -111,15 +113,33 @@ paths:
       - orders
     post:
       consumes:
-      - application/json
+      - text/plain
       description: order create
       produces:
       - application/json
       responses:
         "200":
           description: OK
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
           schema:
-            type: json
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "500":
+          description: Internal Server Error
       summary: create
       tags:
       - orders

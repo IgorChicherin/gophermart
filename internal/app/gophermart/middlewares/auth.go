@@ -10,7 +10,7 @@ import (
 
 func AuthMiddleware(userRepo repositories.UserRepository) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		hash, err := ctx.Cookie("token")
+		token, err := ctx.Cookie("token")
 
 		if err != nil && !errors.Is(err, http.ErrNoCookie) {
 			log.Errorf("auth middleware error: %w", err)
@@ -23,7 +23,7 @@ func AuthMiddleware(userRepo repositories.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		ok, err := userRepo.Validate(hash)
+		ok, err := userRepo.Validate(token)
 
 		if err != nil || !ok {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"code": "401", "message": "unauthorized"})

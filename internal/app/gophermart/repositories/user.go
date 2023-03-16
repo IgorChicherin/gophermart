@@ -14,6 +14,7 @@ type UserRepository interface {
 	GetUser(login string) (models.User, error)
 	CreateUser(login, password string) (models.User, error)
 	Validate(hash string) (bool, error)
+	DecodeToken(token string) (string, string, error)
 }
 
 type userRepo struct {
@@ -29,7 +30,7 @@ func (ur userRepo) GetUser(login string) (models.User, error) {
 	ctx := context.Background()
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.Select().
-		Columns("login", "password", "created_at").
+		Columns("id", "login", "password", "created_at").
 		From("users").
 		Where(sq.Eq{"login": login}).
 		ToSql()
@@ -50,7 +51,7 @@ func (ur userRepo) GetUser(login string) (models.User, error) {
 	var u models.User
 
 	rows.Next()
-	err = rows.Scan(&u.Login, &u.Password, &u.CreatedAt)
+	err = rows.Scan(&u.UserId, &u.Login, &u.Password, &u.CreatedAt)
 
 	if err != nil {
 		return models.User{}, err
@@ -124,4 +125,8 @@ func (ur userRepo) Validate(hash string) (bool, error) {
 		return false, err
 	}
 	return user.Password == hash, nil
+}
+
+func (ur userRepo) DecodeToken(token string) (string, string, error) {
+	return ur.AuthService.DecodeToken(token)
 }
