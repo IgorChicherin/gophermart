@@ -45,7 +45,7 @@ func (c createOrderUseCase) CreateOrder(login, orderNr string) (models.Order, er
 		log.Errorln(err)
 	}
 
-	order, err := c.OrderRepo.CreateOrder(orderNr, user.UserId)
+	order, err := c.OrderRepo.CreateOrder(orderNr, user.UserID)
 
 	if err != nil {
 		return models.Order{}, err

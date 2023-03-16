@@ -9,7 +9,7 @@ import (
 )
 
 type OrderRepository interface {
-	CreateOrder(orderNr string, userId int) (models.Order, error)
+	CreateOrder(orderNr string, userID int) (models.Order, error)
 	GetOrder(orderNr string) (models.Order, error)
 	HasOrder(orderNr string) (bool, error)
 }
@@ -22,14 +22,14 @@ type orderRepo struct {
 	DBConn *pgx.Conn
 }
 
-func (or orderRepo) CreateOrder(orderNr string, userId int) (models.Order, error) {
+func (or orderRepo) CreateOrder(orderNr string, userID int) (models.Order, error) {
 	ctx := context.Background()
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 	query := psql.
 		Insert("orders").
 		Columns("order_id", "user_id").
-		Values(orderNr, userId)
+		Values(orderNr, userID)
 	sql, args, err := query.ToSql()
 
 	if err != nil {
@@ -78,7 +78,7 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 	var order models.Order
 
 	rows.Next()
-	err = rows.Scan(&order.OrderId, &order.UserId, &order.Status, &order.UpdatedAt, &order.CreatedAt)
+	err = rows.Scan(&order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
 
 	if err != nil {
 		return models.Order{}, err
@@ -114,6 +114,11 @@ func (or orderRepo) HasOrder(orderNr string) (bool, error) {
 	var count int
 	rows.Next()
 	err = rows.Scan(&count)
+
+	if err != nil {
+		log.Errorln(err)
+		return false, err
+	}
 
 	return count > 0, nil
 }

@@ -51,7 +51,7 @@ func (ur userRepo) GetUser(login string) (models.User, error) {
 	var u models.User
 
 	rows.Next()
-	err = rows.Scan(&u.UserId, &u.Login, &u.Password, &u.CreatedAt)
+	err = rows.Scan(&u.UserID, &u.Login, &u.Password, &u.CreatedAt)
 
 	if err != nil {
 		return models.User{}, err
@@ -113,6 +113,11 @@ func (ur userRepo) HasLogin(login string) (bool, error) {
 	var count int
 	rows.Next()
 	err = rows.Scan(&count)
+
+	if err != nil {
+		log.Errorln(err)
+		return false, err
+	}
 
 	return count > 0, nil
 }
