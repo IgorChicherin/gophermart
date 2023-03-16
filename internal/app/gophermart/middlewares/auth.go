@@ -13,7 +13,7 @@ func AuthMiddleware(userRepo repositories.UserRepository) gin.HandlerFunc {
 		token, err := ctx.Cookie("token")
 
 		if err != nil && !errors.Is(err, http.ErrNoCookie) {
-			log.Errorf("auth middleware error: %w", err)
+			log.Errorf("auth middleware error: %s", err)
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
 			return
 		}
