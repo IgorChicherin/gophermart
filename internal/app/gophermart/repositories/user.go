@@ -125,6 +125,10 @@ func (ur userRepo) HasLogin(login string) (bool, error) {
 func (ur userRepo) Validate(hash string) (bool, error) {
 	login, hash, err := ur.AuthService.DecodeToken(hash)
 
+	if err != nil {
+		return false, err
+	}
+
 	user, err := ur.GetUser(login)
 	if err != nil {
 		return false, err
