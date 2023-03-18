@@ -2,11 +2,17 @@ package db
 
 import (
 	"database/sql"
+	"embed"
 	"errors"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/pgx"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/httpfs"
+	"net/http"
 )
+
+//go:embed migrations/*.sql
+var migrations embed.FS
 
 func Migrate(databaseDSN string) error {
 	db, err := sql.Open("pgx", databaseDSN)
@@ -19,9 +25,10 @@ func Migrate(databaseDSN string) error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://internal/pkg/db/migrations",
-		"postgres", driver)
+	source, err := httpfs.New(http.FS(migrations), "migrations")
+
+	m, err := migrate.NewWithInstance(
+		"migrations", source, "postgres", driver)
 
 	if err != nil {
 		return err
