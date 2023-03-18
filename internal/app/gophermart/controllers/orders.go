@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
+	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -10,11 +12,12 @@ import (
 )
 
 type OrdersController struct {
-	CreateOrderUseCase usecases.CreateOrderUseCase
+	OrderUseCase   usecases.OrderUseCase
+	AccrualService accrual.AccrualService
 }
 
 func (oc OrdersController) Route(api *gin.RouterGroup) {
-	middleware := middlewares.AuthMiddleware(oc.CreateOrderUseCase.GetUserRepository())
+	middleware := middlewares.AuthMiddleware(oc.OrderUseCase.GetUserRepository())
 	orders := api.Group("/user").Use(middleware)
 	{
 		orders.POST("/orders", oc.orderCreate)
@@ -46,8 +49,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	orderNr := string(b)
 
 	token, err := c.Cookie("token")
-	userRepo := oc.CreateOrderUseCase.GetUserRepository()
-	orderRepo := oc.CreateOrderUseCase.GetOrderRepository()
+	userRepo := oc.OrderUseCase.GetUserRepository()
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
@@ -57,6 +59,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {
+		log.Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -67,26 +70,29 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		return
 	}
 
-	hasOrder, err := orderRepo.HasOrder(orderNr)
-
 	if err != nil {
+		log.Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if hasOrder {
-		c.AbortWithStatusJSON(http.StatusConflict, map[string]string{"error": "the order has already been created"})
+	_, err = oc.AccrualService.GetAccrual(orderNr)
+
+	if errors.Is(err, accrual.ErrNotFoundOrder) {
+		log.Errorln(err)
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	_, err = oc.CreateOrderUseCase.CreateOrder(login, orderNr)
+	_, err = oc.OrderUseCase.CreateOrder(login, orderNr)
 
 	if err != nil {
+		log.Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.Status(http.StatusAccepted)
 }
 
 // @BasePath /api
@@ -100,5 +106,28 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Success 200 {json} OK
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
-	c.String(http.StatusOK, "OK")
+	token, err := c.Cookie("token")
+	userRepo := oc.OrderUseCase.GetUserRepository()
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
+		return
+	}
+
+	login, _, err := userRepo.DecodeToken(token)
+
+	if err != nil {
+		log.Errorln(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ordersList, err := oc.OrderUseCase.GetOrdersList(login)
+	if err != nil {
+		log.Errorln(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.AbortWithStatusJSON(http.StatusOK, ordersList)
 }

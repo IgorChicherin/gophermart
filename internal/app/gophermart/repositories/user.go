@@ -2,12 +2,15 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
 )
+
+var ErrUserNotFound = errors.New("user not found")
 
 type UserRepository interface {
 	HasLogin(login string) (bool, error)

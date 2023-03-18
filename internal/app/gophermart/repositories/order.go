@@ -11,6 +11,7 @@ import (
 type OrderRepository interface {
 	CreateOrder(orderNr string, userID int) (models.Order, error)
 	GetOrder(orderNr string) (models.Order, error)
+	GetOrderList(userID int) ([]models.Order, error)
 	HasOrder(orderNr string) (bool, error)
 }
 
@@ -57,7 +58,7 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 	ctx := context.Background()
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.Select().
-		Columns("order_id", "user_id", "status", "updated_at", "created_at").
+		Columns("id", "order_id", "user_id", "status", "updated_at", "created_at").
 		From("orders").
 		Where(sq.Eq{"order_id": orderNr}).
 		ToSql()
@@ -78,7 +79,7 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 	var order models.Order
 
 	rows.Next()
-	err = rows.Scan(&order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
+	err = rows.Scan(&order.ID, &order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
 
 	if err != nil {
 		return models.Order{}, err
@@ -121,4 +122,40 @@ func (or orderRepo) HasOrder(orderNr string) (bool, error) {
 	}
 
 	return count > 0, nil
+}
+
+func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
+	ctx := context.Background()
+
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	sql, args, err := psql.
+		Select().
+		Columns("id", "order_id", "user_id", "status", "updated_at", "created_at").
+		From("orders").
+		Where(sq.Eq{"user_id": userID}).
+		ToSql()
+
+	if err != nil {
+		log.Errorln(err)
+		return []models.Order{}, err
+	}
+
+	rows, err := or.DBConn.Query(ctx, sql, args...)
+	defer rows.Close()
+
+	var ordersList []models.Order
+
+	for rows.Next() {
+		var order models.Order
+		err = rows.Scan(&order.ID, &order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
+
+		if err != nil {
+			log.Errorln(err)
+			return []models.Order{}, err
+		}
+
+		ordersList = append(ordersList, order)
+	}
+
+	return ordersList, nil
 }
