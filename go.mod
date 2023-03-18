@@ -8,6 +8,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.9.0
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/sirupsen/logrus v1.9.0
