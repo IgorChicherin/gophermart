@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
@@ -76,11 +75,37 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		return
 	}
 
-	_, err = oc.AccrualService.GetAccrual(orderNr)
+	orderRepo := oc.OrderUseCase.GetOrderRepository()
+	hasOrder, err := orderRepo.HasOrder(orderNr)
 
-	if errors.Is(err, accrual.ErrNotFoundOrder) {
+	if err != nil {
 		log.Errorln(err)
-		c.AbortWithStatus(http.StatusNotFound)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if hasOrder {
+		order, err := orderRepo.GetOrder(orderNr)
+
+		if err != nil {
+			log.Errorln(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		user, err := userRepo.GetUser(login)
+
+		if err != nil {
+			log.Errorln(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+		}
+
+		if order.UserID != user.UserID {
+			c.AbortWithStatus(http.StatusConflict)
+			return
+		}
+
+		c.AbortWithStatus(http.StatusOK)
 		return
 	}
 
