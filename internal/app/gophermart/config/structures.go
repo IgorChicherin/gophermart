@@ -16,7 +16,7 @@ func (sc ServerConfig) IsDefaultDatabaseURI() bool {
 }
 
 func (sc ServerConfig) IsDefaultAccrualAddress() bool {
-	return sc.AccrualAddress == "localhost:8000"
+	return sc.AccrualAddress == "localhost:8081"
 }
 
 func (sc ServerConfig) IsDefaultSettings() bool {
