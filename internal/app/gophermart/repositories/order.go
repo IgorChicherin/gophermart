@@ -142,6 +142,12 @@ func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
 	}
 
 	rows, err := or.DBConn.Query(ctx, sql, args...)
+
+	if err != nil {
+		log.WithFields(log.Fields{"func": "GetOrderList"}).Errorln(err)
+		return []models.Order{}, err
+	}
+
 	defer rows.Close()
 
 	var ordersList []models.Order
