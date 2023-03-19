@@ -71,12 +71,6 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
 	orderRepo := oc.OrderUseCase.GetOrderRepository()
 	hasOrder, err := orderRepo.HasOrder(orderNr)
 

@@ -27,6 +27,10 @@ func Migrate(databaseDSN string) error {
 
 	source, err := httpfs.New(http.FS(migrations), "migrations")
 
+	if err != nil {
+		return err
+	}
+
 	m, err := migrate.NewWithInstance(
 		"migrations", source, "postgres", driver)
 
