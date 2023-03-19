@@ -170,6 +170,7 @@ func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
 
 	for rows.Next() {
 		var order models.Order
+
 		err = rows.Scan(
 			&order.ID,
 			&order.OrderID,

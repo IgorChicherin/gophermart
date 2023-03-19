@@ -87,6 +87,7 @@ func (c orderUseCase) GetOrdersList(login string) ([]models.OrderListItem, error
 		ordersListResponse = append(ordersListResponse, models.OrderListItem{
 			Number:     order.OrderID,
 			Status:     order.Status,
+			Accrual:    order.Accrual,
 			UploadedAt: order.CreatedAt,
 		})
 	}

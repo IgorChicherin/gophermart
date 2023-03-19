@@ -113,6 +113,9 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		return
 	}
 
+	go func() {
+		oc.AccrualService.ProcessOrder(orderNr)
+	}()
 	c.Status(http.StatusAccepted)
 }
 
@@ -125,6 +128,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {json} OK
+// @Success 204
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
 	token, err := c.Cookie("token")
@@ -148,6 +152,11 @@ func (oc OrdersController) orderGet(c *gin.Context) {
 	if err != nil {
 		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if len(ordersList) == 0 {
+		c.AbortWithStatus(http.StatusNoContent)
 		return
 	}
 

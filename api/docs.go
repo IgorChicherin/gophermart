@@ -143,6 +143,9 @@ const docTemplate = `{
                         "schema": {
                             "type": "json"
                         }
+                    },
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             },

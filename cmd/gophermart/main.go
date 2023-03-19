@@ -45,7 +45,7 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	hashService := sha256.NewSha256HashService(cfg.HashKey)
-	accrualService := accrual.NewAccrualService(cfg.AccrualAddress)
+	accrualService := accrual.NewAccrualService(ctxDB, conn, cfg.AccrualAddress)
 
 	srv := &http.Server{
 		Addr:    cfg.Address,
@@ -62,7 +62,7 @@ func main() {
 	<-done
 	log.Infoln("Server Stopped")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer func() {
 		cancel()
 	}()

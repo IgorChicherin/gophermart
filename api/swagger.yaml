@@ -108,6 +108,8 @@ paths:
           description: OK
           schema:
             type: json
+        "204":
+          description: No Content
       summary: get
       tags:
       - orders
