@@ -46,7 +46,7 @@ func (a accrual) GetAccrual(orderNr string) (OrderAccrual, error) {
 	resp, err := req.Get(URL)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetAccrual"}).Errorln(err)
 		return OrderAccrual{}, err
 	}
 
@@ -60,7 +60,7 @@ func (a accrual) GetAccrual(orderNr string) (OrderAccrual, error) {
 	err = json.Unmarshal(data, &order)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetAccrual"}).Errorln(err)
 		return OrderAccrual{}, err
 	}
 

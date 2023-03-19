@@ -32,7 +32,7 @@ func (c orderUseCase) CreateOrder(login, orderNr string) (models.Order, error) {
 	found, err := c.UserRepo.HasLogin(login)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
@@ -43,12 +43,13 @@ func (c orderUseCase) CreateOrder(login, orderNr string) (models.Order, error) {
 	user, err := c.UserRepo.GetUser(login)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateOrder"}).Errorln(err)
 	}
 
 	order, err := c.OrderRepo.CreateOrder(orderNr, user.UserID)
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "CreateOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
@@ -60,7 +61,7 @@ func (c orderUseCase) GetOrdersList(login string) ([]models.OrderListItem, error
 	hasLogin, err := c.UserRepo.HasLogin(login)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetOrdersList"}).Errorln(err)
 		return ordersListResponse, err
 	}
 
@@ -71,14 +72,14 @@ func (c orderUseCase) GetOrdersList(login string) ([]models.OrderListItem, error
 	user, err := c.UserRepo.GetUser(login)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetOrdersList"}).Errorln(err)
 		return ordersListResponse, err
 	}
 
 	orders, err := c.OrderRepo.GetOrderList(user.UserID)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetOrdersList"}).Errorln(err)
 		return ordersListResponse, err
 	}
 

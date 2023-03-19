@@ -39,13 +39,13 @@ func (ur userRepo) GetUser(login string) (models.User, error) {
 		ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetUser"}).Errorln(err)
 		return models.User{}, err
 	}
 
 	rows, err := ur.DBConn.Query(ctx, sql, args...)
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetUser"}).Errorln(err)
 		return models.User{}, err
 	}
 
@@ -57,6 +57,7 @@ func (ur userRepo) GetUser(login string) (models.User, error) {
 	err = rows.Scan(&u.UserID, &u.Login, &u.Password, &u.CreatedAt)
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "GetUser"}).Errorln(err)
 		return models.User{}, err
 	}
 
@@ -76,13 +77,13 @@ func (ur userRepo) CreateUser(login, password string) (models.User, error) {
 	sql, args, err := query.ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateUser"}).Errorln(err)
 		return models.User{}, err
 	}
 
 	_, err = ur.DBConn.Exec(ctx, sql, args...)
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateUser"}).Errorln(err)
 		return models.User{}, err
 	}
 
@@ -100,14 +101,14 @@ func (ur userRepo) HasLogin(login string) (bool, error) {
 		ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "HasLogin"}).Errorln(err)
 		return false, err
 	}
 
 	rows, err := ur.DBConn.Query(ctx, sql, args...)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "HasLogin"}).Errorln(err)
 		return false, err
 	}
 
@@ -118,7 +119,7 @@ func (ur userRepo) HasLogin(login string) (bool, error) {
 	err = rows.Scan(&count)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "HasLogin"}).Errorln(err)
 		return false, err
 	}
 
@@ -129,6 +130,7 @@ func (ur userRepo) Validate(hash string) (bool, error) {
 	login, hash, err := ur.AuthService.DecodeToken(hash)
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "Validate"}).Errorln(err)
 		return false, err
 	}
 

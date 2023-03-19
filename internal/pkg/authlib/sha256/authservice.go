@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
+	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -41,6 +42,7 @@ func (h Sha256HashService) DecodeToken(token string) (string, string, error) {
 	data, err := base64.StdEncoding.DecodeString(token)
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "DecodeToken"}).Errorln(err)
 		return "", "", err
 	}
 

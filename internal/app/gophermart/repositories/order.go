@@ -34,20 +34,20 @@ func (or orderRepo) CreateOrder(orderNr string, userID int) (models.Order, error
 	sql, args, err := query.ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
 	_, err = or.DBConn.Exec(ctx, sql, args...)
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
 	order, err := or.GetOrder(orderNr)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "CreateOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
@@ -64,13 +64,13 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 		ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
 	rows, err := or.DBConn.Query(ctx, sql, args...)
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
@@ -82,6 +82,7 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 	err = rows.Scan(&order.ID, &order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "GetOrder"}).Errorln(err)
 		return models.Order{}, err
 	}
 
@@ -99,14 +100,14 @@ func (or orderRepo) HasOrder(orderNr string) (bool, error) {
 		ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "HasOrder"}).Errorln(err)
 		return false, err
 	}
 
 	rows, err := or.DBConn.Query(ctx, sql, args...)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "HasOrder"}).Errorln(err)
 		return false, err
 	}
 
@@ -117,7 +118,7 @@ func (or orderRepo) HasOrder(orderNr string) (bool, error) {
 	err = rows.Scan(&count)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "HasOrder"}).Errorln(err)
 		return false, err
 	}
 
@@ -136,7 +137,7 @@ func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
 		ToSql()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "GetOrderList"}).Errorln(err)
 		return []models.Order{}, err
 	}
 
@@ -150,7 +151,7 @@ func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
 		err = rows.Scan(&order.ID, &order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
 
 		if err != nil {
-			log.Errorln(err)
+			log.WithFields(log.Fields{"func": "GetOrderList"}).Errorln(err)
 			return []models.Order{}, err
 		}
 

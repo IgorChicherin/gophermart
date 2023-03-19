@@ -40,7 +40,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	b, err := c.GetRawData()
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -51,6 +51,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	userRepo := oc.OrderUseCase.GetUserRepository()
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -58,19 +59,20 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	err = goluhn.Validate(orderNr)
 	if err != nil {
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatus(http.StatusUnprocessableEntity)
 		return
 	}
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -79,7 +81,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	hasOrder, err := orderRepo.HasOrder(orderNr)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -88,7 +90,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		order, err := orderRepo.GetOrder(orderNr)
 
 		if err != nil {
-			log.Errorln(err)
+			log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
@@ -96,7 +98,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		user, err := userRepo.GetUser(login)
 
 		if err != nil {
-			log.Errorln(err)
+			log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 			c.AbortWithStatus(http.StatusInternalServerError)
 		}
 
@@ -112,7 +114,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	_, err = oc.OrderUseCase.CreateOrder(login, orderNr)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -135,6 +137,7 @@ func (oc OrdersController) orderGet(c *gin.Context) {
 	userRepo := oc.OrderUseCase.GetUserRepository()
 
 	if err != nil {
+		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -142,14 +145,14 @@ func (oc OrdersController) orderGet(c *gin.Context) {
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	ordersList, err := oc.OrderUseCase.GetOrdersList(login)
 	if err != nil {
-		log.Errorln(err)
+		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
