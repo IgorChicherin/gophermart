@@ -33,14 +33,14 @@ type AccrualService interface {
 
 type accrual struct {
 	Host   string
-	DbConn *pgx.Conn
+	DBConn *pgx.Conn
 	Ctx    context.Context
 }
 
 func NewAccrualService(ctx context.Context, conn *pgx.Conn, accrualHost string) AccrualService {
 	return accrual{
 		Ctx:    ctx,
-		DbConn: conn,
+		DBConn: conn,
 		Host:   accrualHost,
 	}
 }
@@ -130,7 +130,7 @@ func (a accrual) updateOrder(order OrderAccrual) error {
 		return err
 	}
 
-	_, err = a.DbConn.Exec(ctx, sql, args...)
+	_, err = a.DBConn.Exec(ctx, sql, args...)
 
 	if err != nil {
 		log.WithFields(log.Fields{"func": "updateOrder"}).Errorln(err)
