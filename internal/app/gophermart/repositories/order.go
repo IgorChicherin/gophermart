@@ -11,10 +11,10 @@ import (
 type OrderStatus string
 
 const (
-	STATUS_NEW        OrderStatus = "NEW"
-	STATUS_INVALID    OrderStatus = "INVALID"
-	STATUS_PROCESSING OrderStatus = "PROCESSING"
-	STATUS_PROCESSED  OrderStatus = "PROCESSED"
+	StatusNew        OrderStatus = "NEW"
+	StatusInvalid    OrderStatus = "INVALID"
+	StatusProcessing OrderStatus = "PROCESSING"
+	StatusProcessed  OrderStatus = "PROCESSED"
 )
 
 type OrderRepository interface {

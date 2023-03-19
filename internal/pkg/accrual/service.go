@@ -102,7 +102,7 @@ func (a accrual) ProcessOrder(orderNr string) {
 
 			orderStatus := repositories.OrderStatus(orderAccrual.Status)
 
-			if orderStatus == repositories.STATUS_PROCESSED || orderStatus == repositories.STATUS_INVALID {
+			if orderStatus == repositories.StatusProcessed || orderStatus == repositories.StatusInvalid {
 				err = a.updateOrder(orderAccrual)
 				if err != nil {
 					log.WithFields(log.Fields{"func": "ProcessOrder"}).Errorln(err)

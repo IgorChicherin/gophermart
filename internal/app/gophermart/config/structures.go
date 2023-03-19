@@ -1,9 +1,9 @@
 package config
 
 type ServerConfig struct {
-	Address        string `env:"RUN_ADDRESS" envDefault:"localhost:8081"`
+	Address        string `env:"RUN_ADDRESS" envDefault:"localhost:8080"`
 	DatabaseURI    string `env:"DATABASE_URI" envDefault:"postgres://test:test@localhost:5432/gophermart?sslmode=disable"`
-	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS" envDefault:"localhost:8080"`
+	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS" envDefault:"localhost:8081"`
 	HashKey        string `env:"HASH_KEY" envDefault:"super_secret_key"`
 }
 
