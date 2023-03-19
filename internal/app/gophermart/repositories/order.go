@@ -8,6 +8,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type OrderStatus string
+
+const (
+	STATUS_NEW        OrderStatus = "NEW"
+	STATUS_INVALID    OrderStatus = "INVALID"
+	STATUS_PROCESSING OrderStatus = "PROCESSING"
+	STATUS_PROCESSED  OrderStatus = "PROCESSED"
+)
+
 type OrderRepository interface {
 	CreateOrder(orderNr string, userID int) (models.Order, error)
 	GetOrder(orderNr string) (models.Order, error)
@@ -58,7 +67,7 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 	ctx := context.Background()
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.Select().
-		Columns("id", "order_id", "user_id", "status", "updated_at", "created_at").
+		Columns("id", "order_id", "user_id", "status", "accrual", "updated_at", "created_at").
 		From("orders").
 		Where(sq.Eq{"order_id": orderNr}).
 		ToSql()
@@ -79,7 +88,14 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 	var order models.Order
 
 	rows.Next()
-	err = rows.Scan(&order.ID, &order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
+	err = rows.Scan(
+		&order.ID,
+		&order.OrderID,
+		&order.UserID,
+		&order.Status,
+		&order.Accrual,
+		&order.UpdatedAt,
+		&order.CreatedAt)
 
 	if err != nil {
 		log.WithFields(log.Fields{"func": "GetOrder"}).Errorln(err)
@@ -131,7 +147,7 @@ func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.
 		Select().
-		Columns("id", "order_id", "user_id", "status", "updated_at", "created_at").
+		Columns("id", "order_id", "user_id", "status", "accrual", "updated_at", "created_at").
 		From("orders").
 		Where(sq.Eq{"user_id": userID}).
 		ToSql()
@@ -154,7 +170,14 @@ func (or orderRepo) GetOrderList(userID int) ([]models.Order, error) {
 
 	for rows.Next() {
 		var order models.Order
-		err = rows.Scan(&order.ID, &order.OrderID, &order.UserID, &order.Status, &order.UpdatedAt, &order.CreatedAt)
+		err = rows.Scan(
+			&order.ID,
+			&order.OrderID,
+			&order.UserID,
+			&order.Status,
+			&order.Accrual,
+			&order.UpdatedAt,
+			&order.CreatedAt)
 
 		if err != nil {
 			log.WithFields(log.Fields{"func": "GetOrderList"}).Errorln(err)
