@@ -30,12 +30,15 @@ func NewRouter(
 
 	userRepo := repositories.NewUserRepository(conn, authService)
 	orderRepo := repositories.NewOrderRepository(conn)
+	withdrawRepo := repositories.NewWithdrawRepository(conn)
 	orderControllerUseCase := usecases.NewCreateOrderUseCase(conn, userRepo, orderRepo)
+	balanceControllerUseCase := usecases.NewBalanceUseCase(conn, userRepo)
+	withdrawUseCase := usecases.NewWithdrawUseCase(conn, withdrawRepo)
 
 	auth := controllers.AuthController{UserRepository: userRepo, AuthService: authService}
 	orders := controllers.OrdersController{OrderUseCase: orderControllerUseCase, AccrualService: accrualService}
-	balance := controllers.BalanceController{UserRepository: userRepo}
-	withdraw := controllers.WithdrawController{UserRepository: userRepo}
+	balance := controllers.BalanceController{UserRepository: userRepo, BalanceUseCase: balanceControllerUseCase}
+	withdraw := controllers.WithdrawController{UserRepository: userRepo, WithdrawUseCase: withdrawUseCase}
 
 	api := router.Group("/api")
 	{

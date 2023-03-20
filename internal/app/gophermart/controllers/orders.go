@@ -33,8 +33,8 @@ func (oc OrdersController) Route(api *gin.RouterGroup) {
 // @Accept plain
 // @Produce json
 // @Success 200,202
-// @Failure 500
-// @Failure 400,401,409,422 {object} models.DefaultErrorResponse
+// @Failure 409,422,500
+// @Failure 400,401 {object} models.DefaultErrorResponse
 // @Router /user/orders [post]
 func (oc OrdersController) orderCreate(c *gin.Context) {
 	b, err := c.GetRawData()
@@ -127,8 +127,10 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Tags orders
 // @Accept json
 // @Produce json
-// @Success 200 {json} OK
+// @Success 200 {json} []models.OrderListItem
 // @Success 204
+// @Failure 401 {object} models.DefaultErrorResponse
+// @Failure 500
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
 	token, err := c.Cookie("token")

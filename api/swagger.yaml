@@ -55,21 +55,6 @@ paths:
       summary: withdraw
       tags:
       - balance
-  /user/balance/withdrawals:
-    get:
-      consumes:
-      - application/json
-      description: user withdrawals
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: json
-      summary: withdrawals
-      tags:
-      - withdrawals
   /user/login:
     post:
       consumes:
@@ -110,6 +95,12 @@ paths:
             type: json
         "204":
           description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.DefaultErrorResponse'
+        "500":
+          description: Internal Server Error
       summary: get
       tags:
       - orders
@@ -134,12 +125,8 @@ paths:
             $ref: '#/definitions/models.DefaultErrorResponse'
         "409":
           description: Conflict
-          schema:
-            $ref: '#/definitions/models.DefaultErrorResponse'
         "422":
           description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/models.DefaultErrorResponse'
         "500":
           description: Internal Server Error
       summary: create
@@ -177,4 +164,21 @@ paths:
       summary: register
       tags:
       - auth
+  /user/withdrawals:
+    get:
+      consumes:
+      - application/json
+      description: user withdrawals
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "204":
+          description: No Content
+      summary: withdrawals
+      tags:
+      - withdrawals
 swagger: "2.0"

@@ -95,7 +95,7 @@ func (ur userRepo) HasLogin(login string) (bool, error) {
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.
-		Select("COUNT(*)").
+		Select("COALESCE(COUNT(*), 0) as count").
 		From("users").
 		Where(sq.Eq{"login": login}).
 		ToSql()

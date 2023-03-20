@@ -110,7 +110,7 @@ func (or orderRepo) HasOrder(orderNr string) (bool, error) {
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.
-		Select("COUNT(*)").
+		Select("COALESCE(COUNT(*), 0) as count").
 		From("orders").
 		Where(sq.Eq{"order_id": orderNr}).
 		ToSql()

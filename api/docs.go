@@ -61,29 +61,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/balance/withdrawals": {
-            "get": {
-                "description": "user withdrawals",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "withdrawals"
-                ],
-                "summary": "withdrawals",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "json"
-                        }
-                    }
-                }
-            }
-        },
         "/user/login": {
             "post": {
                 "description": "user login",
@@ -146,6 +123,15 @@ const docTemplate = `{
                     },
                     "204": {
                         "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
                     }
                 }
             },
@@ -181,16 +167,10 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/models.DefaultErrorResponse"
-                        }
+                        "description": "Conflict"
                     },
                     "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/models.DefaultErrorResponse"
-                        }
+                        "description": "Unprocessable Entity"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -243,6 +223,32 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/withdrawals": {
+            "get": {
+                "description": "user withdrawals",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "withdrawals"
+                ],
+                "summary": "withdrawals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    },
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
