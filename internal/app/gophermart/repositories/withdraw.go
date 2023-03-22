@@ -47,6 +47,11 @@ func (w withdraw) CreateWithdraw(
 
 	_, err = w.DBConn.Exec(ctx, sql, args...)
 
+	if err != nil {
+		log.WithFields(log.Fields{"func": "CreateWithdraw"}).Errorln(err)
+		return models.Withdraw{}, err
+	}
+
 	withdraw, err := w.GetWithdraw(orderNr)
 
 	if err != nil {
