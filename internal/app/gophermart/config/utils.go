@@ -51,7 +51,7 @@ func ParseArgs() (ServerConfig, error) {
 
 	flag.StringVarP(&addr, "address", "a", "localhost:8080", "Host address")
 	flag.StringVarP(&db, "db_uri", "d", "postgres://test:test@localhost:5432/gophermart?sslmode=disable", "Database URI")
-	flag.StringVarP(&accrual, "accrual", "r", "localhost:8081", "Accrual system address")
+	flag.StringVarP(&accrual, "accrual", "r", "http://localhost:8081", "Accrual system address")
 	flag.StringVarP(&key, "key", "k", "super_secret_key", "System hashing key")
 	flag.Parse()
 

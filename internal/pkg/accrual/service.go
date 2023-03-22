@@ -46,12 +46,11 @@ func NewAccrualService(ctx context.Context, conn *pgx.Conn, accrualHost string) 
 }
 
 func (a accrual) GetAccrual(orderNr string) (OrderAccrual, error) {
-	host := "http://" + a.Host
 	URL := fmt.Sprintf(checkOrderURL, orderNr)
 
 	req := resty.
 		New().
-		SetBaseURL(host).
+		SetBaseURL(a.Host).
 		R().
 		SetHeader("Content-Type", "application/json")
 
