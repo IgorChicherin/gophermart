@@ -70,7 +70,7 @@ func (ac AuthController) login(c *gin.Context) {
 	}
 
 	token := ac.AuthService.EncodeToken(user.Login, user.Password)
-	c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+	c.Header("Authorization", token)
 	c.Status(http.StatusOK)
 }
 
@@ -118,7 +118,7 @@ func (ac AuthController) register(c *gin.Context) {
 	}
 
 	token := ac.AuthService.EncodeToken(createdUser.Login, createdUser.Password)
-	c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+	c.Header("Authorization", token)
 
 	c.Status(http.StatusOK)
 }

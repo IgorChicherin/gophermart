@@ -47,15 +47,15 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 
 	orderNr := string(b)
 
-	token, err := c.Cookie("token")
-	userRepo := oc.OrderUseCase.GetUserRepository()
+	token := c.GetHeader("Authorization")
 
-	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+	if token == "" {
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
 
+	userRepo := oc.OrderUseCase.GetUserRepository()
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {
@@ -133,15 +133,15 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Failure 500
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
-	token, err := c.Cookie("token")
-	userRepo := oc.OrderUseCase.GetUserRepository()
+	token := c.GetHeader("Authorization")
 
-	if err != nil {
-		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
+	if token == "" {
+		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
 
+	userRepo := oc.OrderUseCase.GetUserRepository()
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {

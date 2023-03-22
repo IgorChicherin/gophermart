@@ -33,10 +33,10 @@ func (bc BalanceController) Route(api *gin.RouterGroup) {
 // @Success 200 {json} models.Balance
 // @Router /user/balance [get]
 func (bc BalanceController) getUserBalance(c *gin.Context) {
-	token, err := c.Cookie("token")
+	token := c.GetHeader("Authorization")
 
-	if err != nil {
-		log.WithFields(log.Fields{"func": "getUserBalance"}).Errorln(err)
+	if token == "" {
+		log.WithFields(log.Fields{"func": "getUserBalance"}).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}

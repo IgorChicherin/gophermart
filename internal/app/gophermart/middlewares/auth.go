@@ -1,25 +1,16 @@
 package middlewares
 
 import (
-	"errors"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 func AuthMiddleware(userRepo repositories.UserRepository) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token, err := ctx.Cookie("token")
+		token := ctx.GetHeader("Authorization")
 
-		if err != nil && !errors.Is(err, http.ErrNoCookie) {
-
-			log.WithFields(log.Fields{"func": "AuthMiddleware"}).Errorf("auth middleware error: %s", err)
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
-			return
-		}
-
-		if err != nil && errors.Is(err, http.ErrNoCookie) {
+		if token == "" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"code": "401", "message": "unauthorized"})
 			return
 		}

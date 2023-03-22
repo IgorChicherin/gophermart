@@ -38,10 +38,10 @@ func (w WithdrawController) Route(api *gin.RouterGroup) {
 // @Success 204
 // @Router /user/withdrawals [get]
 func (w WithdrawController) withdrawals(c *gin.Context) {
-	token, err := c.Cookie("token")
+	token := c.GetHeader("Authorization")
 
-	if err != nil {
-		log.WithFields(log.Fields{"func": "withdrawals"}).Errorln(err)
+	if token == "" {
+		log.WithFields(log.Fields{"func": "withdrawals"}).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -90,19 +90,19 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 // @Success 200 {json} OK
 // @Router /user/balance/withdraw [post]
 func (w WithdrawController) balanceWithdraw(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+
+	if token == "" {
+		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln("unauthorized")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
+		return
+	}
+
 	var request models.WithdrawalRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	token, err := c.Cookie("token")
-
-	if err != nil {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
 
