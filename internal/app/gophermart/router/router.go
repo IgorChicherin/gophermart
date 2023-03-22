@@ -33,7 +33,7 @@ func NewRouter(
 	withdrawRepo := repositories.NewWithdrawRepository(conn)
 	orderControllerUseCase := usecases.NewCreateOrderUseCase(conn, userRepo, orderRepo)
 	balanceControllerUseCase := usecases.NewBalanceUseCase(conn, userRepo)
-	withdrawUseCase := usecases.NewWithdrawUseCase(conn, withdrawRepo)
+	withdrawUseCase := usecases.NewWithdrawUseCase(conn, withdrawRepo, balanceControllerUseCase)
 
 	auth := controllers.AuthController{UserRepository: userRepo, AuthService: authService}
 	orders := controllers.OrdersController{OrderUseCase: orderControllerUseCase, AccrualService: accrualService}

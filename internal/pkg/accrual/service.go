@@ -123,6 +123,7 @@ func (a accrual) updateOrder(order OrderAccrual) error {
 		Where(sq.Eq{"order_id": order.Order}).
 		Set("status", order.Status).
 		Set("accrual", order.Accrual).
+		Set("updated_at", time.Now()).
 		ToSql()
 
 	if err != nil {

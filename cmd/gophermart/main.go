@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
@@ -62,10 +61,11 @@ func main() {
 	<-done
 	log.Infoln("Server Stopped")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-	defer func() {
-		cancel()
-	}()
+	ctx := context.Background()
+	//ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	//defer func() {
+	//	cancel()
+	//}()
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("Server Shutdown Failed:%+v", err)

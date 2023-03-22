@@ -48,7 +48,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "balance"
+                    "balance",
+                    "withdrawals"
                 ],
                 "summary": "withdraw",
                 "responses": {

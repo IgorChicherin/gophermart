@@ -6,10 +6,11 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 type WithdrawRepository interface {
-	CreateWithdraw() (models.Withdraw, error)
+	CreateWithdraw(userID int, orderNr string, sum float32) (models.Withdraw, error)
 	GetWithdraw(orderNr string) (models.Withdraw, error)
 	GetWithdrawList(userID int) ([]models.Withdraw, error)
 	HasWithdrawals(userID int) (bool, error)
@@ -23,8 +24,37 @@ type withdraw struct {
 	DBConn *pgx.Conn
 }
 
-func (w withdraw) CreateWithdraw() (models.Withdraw, error) {
-	return models.Withdraw{}, nil
+func (w withdraw) CreateWithdraw(
+	userID int,
+	orderNr string,
+	sum float32,
+) (models.Withdraw, error) {
+	ctx := context.Background()
+
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	sql, args, err := psql.
+		Update("withdrawals").
+		Set("order_id", orderNr).
+		Set("user_id", userID).
+		Set("processed_at", time.Now()).
+		Set("sum", sum).
+		ToSql()
+
+	if err != nil {
+		log.WithFields(log.Fields{"func": "CreateWithdraw"}).Errorln(err)
+		return models.Withdraw{}, err
+	}
+
+	_, err = w.DBConn.Exec(ctx, sql, args...)
+
+	withdraw, err := w.GetWithdraw(orderNr)
+
+	if err != nil {
+		log.WithFields(log.Fields{"func": "CreateWithdraw"}).Errorln(err)
+		return models.Withdraw{}, err
+	}
+
+	return withdraw, nil
 }
 
 func (w withdraw) GetWithdraw(orderNr string) (models.Withdraw, error) {

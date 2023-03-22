@@ -55,6 +55,7 @@ paths:
       summary: withdraw
       tags:
       - balance
+      - withdrawals
   /user/login:
     post:
       consumes:
