@@ -53,8 +53,15 @@ func (ur userRepo) GetUser(login string) (models.User, error) {
 
 	var u models.User
 
-	rows.Next()
-	err = rows.Scan(&u.UserID, &u.Login, &u.Password, &u.CreatedAt)
+	for rows.Next() {
+		err = rows.Scan(&u.UserID, &u.Login, &u.Password, &u.CreatedAt)
+		if err != nil {
+			log.WithFields(log.Fields{"func": "GetUser"}).Errorln(err)
+			return models.User{}, err
+		}
+	}
+
+	err = rows.Err()
 
 	if err != nil {
 		log.WithFields(log.Fields{"func": "GetUser"}).Errorln(err)

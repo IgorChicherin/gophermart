@@ -88,16 +88,22 @@ func (w withdraw) GetWithdraw(orderNr string) (models.Withdraw, error) {
 	defer rows.Close()
 
 	var wd models.Withdraw
-	rows.Next()
+	for rows.Next() {
+		err = rows.Scan(
+			&wd.ID,
+			&wd.UserID,
+			&wd.Order,
+			&wd.Sum,
+			&wd.ProcessedAt,
+			&wd.CreatedAt)
 
-	err = rows.Scan(
-		&wd.ID,
-		&wd.UserID,
-		&wd.Order,
-		&wd.Sum,
-		&wd.ProcessedAt,
-		&wd.CreatedAt)
+		if err != nil {
+			log.WithFields(log.Fields{"func": "GetWithdraw"}).Errorln(err)
+			return models.Withdraw{}, err
+		}
+	}
 
+	err = rows.Err()
 	if err != nil {
 		log.WithFields(log.Fields{"func": "GetWithdraw"}).Errorln(err)
 		return models.Withdraw{}, err

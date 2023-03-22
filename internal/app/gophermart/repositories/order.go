@@ -87,16 +87,23 @@ func (or orderRepo) GetOrder(orderNr string) (models.Order, error) {
 
 	var order models.Order
 
-	rows.Next()
-	err = rows.Scan(
-		&order.ID,
-		&order.OrderID,
-		&order.UserID,
-		&order.Status,
-		&order.Accrual,
-		&order.UpdatedAt,
-		&order.CreatedAt)
+	for rows.Next() {
+		err = rows.Scan(
+			&order.ID,
+			&order.OrderID,
+			&order.UserID,
+			&order.Status,
+			&order.Accrual,
+			&order.UpdatedAt,
+			&order.CreatedAt)
 
+		if err != nil {
+			log.WithFields(log.Fields{"func": "GetOrder"}).Errorln(err)
+			return models.Order{}, err
+		}
+	}
+
+	err = rows.Err()
 	if err != nil {
 		log.WithFields(log.Fields{"func": "GetOrder"}).Errorln(err)
 		return models.Order{}, err
