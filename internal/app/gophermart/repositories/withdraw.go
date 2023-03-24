@@ -33,11 +33,9 @@ func (w withdraw) CreateWithdraw(
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	sql, args, err := psql.
-		Update("withdrawals").
-		Set("order_id", orderNr).
-		Set("user_id", userID).
-		Set("processed_at", time.Now()).
-		Set("sum", sum).
+		Insert("withdrawals").
+		Columns("user_id", "order_id", "processed_at", "sum").
+		Values(userID, orderNr, time.Now(), sum).
 		ToSql()
 
 	if err != nil {

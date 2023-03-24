@@ -15,7 +15,8 @@ type BalanceUseCase interface {
 
 func NewBalanceUseCase(
 	conn *pgx.Conn,
-	userRepo repositories.UserRepository) BalanceUseCase {
+	userRepo repositories.UserRepository,
+) BalanceUseCase {
 	return balance{DBConn: conn, UserRepo: userRepo}
 }
 
@@ -38,7 +39,7 @@ func (b balance) GetBalance(login string) (models.Balance, error) {
 	sql, args, err := psql.Select("COALESCE(SUM(accrual), 0) AS accrual, COALESCE(SUM(sum), 0) AS sum").
 		From("orders").
 		Where(sq.Eq{"user_id": user.UserID, "status": repositories.StatusProcessed}).
-		Join("withdrawals USING (user_id)").
+		LeftJoin("withdrawals USING (user_id)").
 		ToSql()
 
 	if err != nil {
