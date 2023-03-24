@@ -16,7 +16,11 @@ import (
 )
 
 func main() {
-	cfg := config.GetSeverConfig()
+	cfg, err := config.GetSeverConfig()
+
+	if err != nil {
+		log.Fatalf("unable to config server: %s", err)
+	}
 
 	if cfg.IsDefaultHashKey() {
 		log.Warning("default secret key has been used")
@@ -26,18 +30,18 @@ func main() {
 	conn, err := pgx.Connect(ctxDB, cfg.DatabaseURI)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("unable to connect DB: %s", err)
 	}
 
 	if err := db.Migrate(cfg.DatabaseURI); err != nil {
-		log.Fatalln(err)
+		log.Fatalf("migration failed: %s", err)
 	}
 	defer conn.Close(ctxDB)
 
 	err = conn.Ping(ctxDB)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("unable to connect DB: %s", err)
 	}
 
 	done := make(chan os.Signal, 1)

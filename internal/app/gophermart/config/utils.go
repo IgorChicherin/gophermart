@@ -6,7 +6,7 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-func GetSeverConfig() ServerConfig {
+func GetSeverConfig() (*ServerConfig, error) {
 	envCfg, err := ParseEnv()
 	if err != nil {
 		log.Fatalln(err)
@@ -14,7 +14,7 @@ func GetSeverConfig() ServerConfig {
 
 	cfg, err := ParseArgs()
 	if err != nil {
-		log.Fatalln(err)
+		return &ServerConfig{}, err
 	}
 
 	newConfig := ServerConfig{}
@@ -43,7 +43,7 @@ func GetSeverConfig() ServerConfig {
 		newConfig.HashKey = envCfg.HashKey
 	}
 
-	return newConfig
+	return &newConfig, nil
 }
 
 func ParseArgs() (ServerConfig, error) {

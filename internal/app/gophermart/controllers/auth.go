@@ -5,7 +5,6 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -38,7 +37,7 @@ func (ac AuthController) login(c *gin.Context) {
 	var userData models.Login
 
 	if err := c.ShouldBind(&userData); err != nil {
-		log.WithFields(log.Fields{"func": "login"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't parse request")
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
@@ -46,7 +45,7 @@ func (ac AuthController) login(c *gin.Context) {
 	hasLogin, err := ac.UserRepository.HasLogin(userData.Login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "login"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("user repository error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -59,7 +58,7 @@ func (ac AuthController) login(c *gin.Context) {
 	user, err := ac.UserRepository.GetUser(userData.Login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "login"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("user repository error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -91,7 +90,7 @@ func (ac AuthController) register(c *gin.Context) {
 	var userData models.User
 
 	if err := c.ShouldBind(&userData); err != nil {
-		log.WithFields(log.Fields{"func": "register"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't parse request")
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
@@ -99,7 +98,7 @@ func (ac AuthController) register(c *gin.Context) {
 	hasLogin, err := ac.UserRepository.HasLogin(userData.Login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "register"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("user repository error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -112,7 +111,7 @@ func (ac AuthController) register(c *gin.Context) {
 	createdUser, err := ac.UserRepository.CreateUser(userData.Login, userData.Password)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "register"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("create user error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

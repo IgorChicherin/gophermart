@@ -8,7 +8,6 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -41,7 +40,7 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 
 	if token == "" {
-		log.WithFields(log.Fields{"func": "withdrawals"}).Errorln("unauthorized")
+		controllerLog(c).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -49,7 +48,7 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 	login, _, err := w.UserRepository.DecodeToken(token)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "withdrawals"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("token decode error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -57,7 +56,7 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 	user, err := w.UserRepository.GetUser(login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "withdrawals"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't get user")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -65,7 +64,7 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 	wds, err := w.WithdrawUseCase.WithdrawalsList(user.UserID)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "withdrawals"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("withdrawals list error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -93,7 +92,7 @@ func (w WithdrawController) balanceWithdraw(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 
 	if token == "" {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln("unauthorized")
+		controllerLog(c).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -101,7 +100,7 @@ func (w WithdrawController) balanceWithdraw(c *gin.Context) {
 	var request models.WithdrawalRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't parse request")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -109,7 +108,7 @@ func (w WithdrawController) balanceWithdraw(c *gin.Context) {
 	login, _, err := w.UserRepository.DecodeToken(token)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't decode token")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -117,14 +116,14 @@ func (w WithdrawController) balanceWithdraw(c *gin.Context) {
 	user, err := w.UserRepository.GetUser(login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't get user")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	err = goluhn.Validate(request.Order)
 	if err != nil {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("order is not valid")
 		c.AbortWithStatus(http.StatusUnprocessableEntity)
 		return
 	}
@@ -132,13 +131,13 @@ func (w WithdrawController) balanceWithdraw(c *gin.Context) {
 	_, err = w.WithdrawUseCase.CreateWithdrawOrder(user, request.Order, request.Sum)
 
 	if errors.Is(err, usecases.ErrInsufficientFunds) {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
+		controllerLog(c).WithError(err)
 		c.AbortWithStatus(http.StatusPaymentRequired)
 		return
 	}
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "balanceWithdraw"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("couldn't withdraw")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

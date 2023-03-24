@@ -3,6 +3,7 @@ package router
 import (
 	docs "github.com/IgorChicherin/gophermart/api"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/controllers"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
@@ -25,6 +26,8 @@ func NewRouter(
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	router.Use(middlewares.LoggerMiddleware())
 
 	docs.SwaggerInfo.BasePath = "/api/"
 

@@ -40,7 +40,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	b, err := c.GetRawData()
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("order parse error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -50,7 +50,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 
 	if token == "" {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln("unauthorized")
+		controllerLog(c).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -59,14 +59,14 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("create order error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	err = goluhn.Validate(orderNr)
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("order number is not valid")
 		c.AbortWithStatus(http.StatusUnprocessableEntity)
 		return
 	}
@@ -75,7 +75,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	hasOrder, err := orderRepo.HasOrder(orderNr)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("order not found")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -84,7 +84,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		order, err := orderRepo.GetOrder(orderNr)
 
 		if err != nil {
-			log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+			controllerLog(c).WithError(err).Errorln("order not found")
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
@@ -92,7 +92,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		user, err := userRepo.GetUser(login)
 
 		if err != nil {
-			log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+			controllerLog(c).WithError(err).Errorln("user not found")
 			c.AbortWithStatus(http.StatusInternalServerError)
 		}
 
@@ -108,7 +108,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	_, err = oc.OrderUseCase.CreateOrder(login, orderNr)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't create order")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -145,14 +145,14 @@ func (oc OrdersController) orderGet(c *gin.Context) {
 	login, _, err := userRepo.DecodeToken(token)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't decode token")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	ordersList, err := oc.OrderUseCase.GetOrdersList(login)
 	if err != nil {
-		log.WithFields(log.Fields{"func": "orderGet"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("orders list error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

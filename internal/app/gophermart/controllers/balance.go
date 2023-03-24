@@ -5,7 +5,6 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -36,7 +35,7 @@ func (bc BalanceController) getUserBalance(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 
 	if token == "" {
-		log.WithFields(log.Fields{"func": "getUserBalance"}).Errorln("unauthorized")
+		controllerLog(c).Errorln("unauthorized")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
 		return
 	}
@@ -44,7 +43,7 @@ func (bc BalanceController) getUserBalance(c *gin.Context) {
 	login, _, err := bc.UserRepository.DecodeToken(token)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "getUserBalance"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("can't decode token")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -52,7 +51,7 @@ func (bc BalanceController) getUserBalance(c *gin.Context) {
 	user, err := bc.UserRepository.GetUser(login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "getUserBalance"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("getting user error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -60,7 +59,7 @@ func (bc BalanceController) getUserBalance(c *gin.Context) {
 	balance, err := bc.BalanceUseCase.GetBalance(user.Login)
 
 	if err != nil {
-		log.WithFields(log.Fields{"func": "getUserBalance"}).Errorln(err)
+		controllerLog(c).WithError(err).Errorln("getting balance error")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
