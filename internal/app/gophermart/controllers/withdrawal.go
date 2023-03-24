@@ -37,27 +37,10 @@ func (w WithdrawController) Route(api *gin.RouterGroup) {
 // @Success 204
 // @Router /user/withdrawals [get]
 func (w WithdrawController) withdrawals(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-
-	if token == "" {
-		controllerLog(c).Errorln("unauthorized")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
-		return
-	}
-
-	login, _, err := w.UserRepository.DecodeToken(token)
+	err, user := GetUser(c, w.UserRepository)
 
 	if err != nil {
-		controllerLog(c).WithError(err).Errorln("token decode error")
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	user, err := w.UserRepository.GetUser(login)
-
-	if err != nil {
-		controllerLog(c).WithError(err).Errorln("can't get user")
-		c.AbortWithStatus(http.StatusInternalServerError)
+		controllerLog(c).WithError(err).Errorln("get user error")
 		return
 	}
 
@@ -89,11 +72,10 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 // @Success 200 {json} OK
 // @Router /user/balance/withdraw [post]
 func (w WithdrawController) balanceWithdraw(c *gin.Context) {
-	token := c.GetHeader("Authorization")
+	err, user := GetUser(c, w.UserRepository)
 
-	if token == "" {
-		controllerLog(c).Errorln("unauthorized")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
+	if err != nil {
+		controllerLog(c).WithError(err).Errorln("get user error")
 		return
 	}
 
@@ -101,22 +83,6 @@ func (w WithdrawController) balanceWithdraw(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		controllerLog(c).WithError(err).Errorln("can't parse request")
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	login, _, err := w.UserRepository.DecodeToken(token)
-
-	if err != nil {
-		controllerLog(c).WithError(err).Errorln("can't decode token")
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	user, err := w.UserRepository.GetUser(login)
-
-	if err != nil {
-		controllerLog(c).WithError(err).Errorln("can't get user")
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

@@ -32,27 +32,10 @@ func (bc BalanceController) Route(api *gin.RouterGroup) {
 // @Success 200 {json} models.Balance
 // @Router /user/balance [get]
 func (bc BalanceController) getUserBalance(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-
-	if token == "" {
-		controllerLog(c).Errorln("unauthorized")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
-		return
-	}
-
-	login, _, err := bc.UserRepository.DecodeToken(token)
+	err, user := GetUser(c, bc.UserRepository)
 
 	if err != nil {
-		controllerLog(c).WithError(err).Errorln("can't decode token")
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	user, err := bc.UserRepository.GetUser(login)
-
-	if err != nil {
-		controllerLog(c).WithError(err).Errorln("getting user error")
-		c.AbortWithStatus(http.StatusInternalServerError)
+		controllerLog(c).WithError(err).Errorln("get user error")
 		return
 	}
 

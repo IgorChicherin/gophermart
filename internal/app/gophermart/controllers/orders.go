@@ -6,7 +6,6 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -46,21 +45,12 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	}
 
 	orderNr := string(b)
-
-	token := c.GetHeader("Authorization")
-
-	if token == "" {
-		controllerLog(c).Errorln("unauthorized")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
-		return
-	}
-
 	userRepo := oc.OrderUseCase.GetUserRepository()
-	login, _, err := userRepo.DecodeToken(token)
+
+	err, user := GetUser(c, userRepo)
 
 	if err != nil {
-		controllerLog(c).WithError(err).Errorln("create order error")
-		c.AbortWithStatus(http.StatusInternalServerError)
+		controllerLog(c).WithError(err).Errorln("get user error")
 		return
 	}
 
@@ -89,13 +79,6 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 			return
 		}
 
-		user, err := userRepo.GetUser(login)
-
-		if err != nil {
-			controllerLog(c).WithError(err).Errorln("user not found")
-			c.AbortWithStatus(http.StatusInternalServerError)
-		}
-
 		if order.UserID != user.UserID {
 			c.AbortWithStatus(http.StatusConflict)
 			return
@@ -105,7 +88,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		return
 	}
 
-	_, err = oc.OrderUseCase.CreateOrder(login, orderNr)
+	_, err = oc.OrderUseCase.CreateOrder(user.Login, orderNr)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("can't create order")
@@ -133,24 +116,14 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Failure 500
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-
-	if token == "" {
-		log.WithFields(log.Fields{"func": "orderCreate"}).Errorln("unauthorized")
-		c.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized user"})
-		return
-	}
-
-	userRepo := oc.OrderUseCase.GetUserRepository()
-	login, _, err := userRepo.DecodeToken(token)
+	err, user := GetUser(c, oc.OrderUseCase.GetUserRepository())
 
 	if err != nil {
-		controllerLog(c).WithError(err).Errorln("can't decode token")
-		c.AbortWithStatus(http.StatusInternalServerError)
+		controllerLog(c).WithError(err).Errorln("get user error")
 		return
 	}
 
-	ordersList, err := oc.OrderUseCase.GetOrdersList(login)
+	ordersList, err := oc.OrderUseCase.GetOrdersList(user.Login)
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("orders list error")
 		c.AbortWithStatus(http.StatusInternalServerError)
