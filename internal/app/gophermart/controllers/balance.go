@@ -32,7 +32,7 @@ func (bc BalanceController) Route(api *gin.RouterGroup) {
 // @Success 200 {json} models.Balance
 // @Router /user/balance [get]
 func (bc BalanceController) getUserBalance(c *gin.Context) {
-	err, user := GetUser(c, bc.UserRepository)
+	user, err := GetUser(c, bc.UserRepository)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")

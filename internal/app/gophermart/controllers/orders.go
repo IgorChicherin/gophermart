@@ -47,7 +47,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	orderNr := string(b)
 	userRepo := oc.OrderUseCase.GetUserRepository()
 
-	err, user := GetUser(c, userRepo)
+	user, err := GetUser(c, userRepo)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")
@@ -116,7 +116,7 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Failure 500
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
-	err, user := GetUser(c, oc.OrderUseCase.GetUserRepository())
+	user, err := GetUser(c, oc.OrderUseCase.GetUserRepository())
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")

@@ -37,7 +37,7 @@ func (w WithdrawController) Route(api *gin.RouterGroup) {
 // @Success 204
 // @Router /user/withdrawals [get]
 func (w WithdrawController) withdrawals(c *gin.Context) {
-	err, user := GetUser(c, w.UserRepository)
+	user, err := GetUser(c, w.UserRepository)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")
@@ -72,7 +72,7 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 // @Success 200 {json} OK
 // @Router /user/balance/withdraw [post]
 func (w WithdrawController) balanceWithdraw(c *gin.Context) {
-	err, user := GetUser(c, w.UserRepository)
+	user, err := GetUser(c, w.UserRepository)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")
