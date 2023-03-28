@@ -86,6 +86,6 @@ func (w withdrawUseCase) CreateWithdrawOrder(user models.User, orderNr string, s
 		return models.Withdraw{}, ErrInsufficientFunds
 	}
 
-	wd_sum := w.MoneyService.FloatToInt(sum)
-	return w.WithdrawRepository.CreateWithdraw(user.UserID, orderNr, wd_sum)
+	wdSum := w.MoneyService.FloatToInt(sum)
+	return w.WithdrawRepository.CreateWithdraw(user.UserID, orderNr, wdSum)
 }
