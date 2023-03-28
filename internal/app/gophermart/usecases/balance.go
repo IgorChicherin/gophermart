@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
@@ -16,13 +17,15 @@ type BalanceUseCase interface {
 func NewBalanceUseCase(
 	conn *pgx.Conn,
 	userRepo repositories.UserRepository,
+	moneyService moneylib.MoneyService,
 ) BalanceUseCase {
-	return balance{DBConn: conn, UserRepo: userRepo}
+	return balance{DBConn: conn, UserRepo: userRepo, MoneyService: moneyService}
 }
 
 type balance struct {
-	DBConn   *pgx.Conn
-	UserRepo repositories.UserRepository
+	DBConn       *pgx.Conn
+	UserRepo     repositories.UserRepository
+	MoneyService moneylib.MoneyService
 }
 
 func (b balance) GetBalance(login string) (models.Balance, error) {
@@ -56,18 +59,20 @@ func (b balance) GetBalance(login string) (models.Balance, error) {
 
 	defer rows.Close()
 
-	var accrual float32
+	var accrual, withdrawn int
 	var balance models.Balance
 
 	rows.Next()
-	err = rows.Scan(&accrual, &balance.Withdrawn)
+	err = rows.Scan(&accrual, &withdrawn)
 
 	if err != nil {
 		log.WithFields(log.Fields{"func": "GetBalance"}).Errorln(err)
 		return models.Balance{}, err
 	}
 
-	balance.Current = accrual - balance.Withdrawn
+	current := accrual - withdrawn
 
+	balance.Current = b.MoneyService.IntToFloat32(current)
+	balance.Withdrawn = b.MoneyService.IntToFloat32(withdrawn)
 	return balance, nil
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/go-resty/resty/v2"
 	"github.com/jackc/pgx/v4"
@@ -23,7 +24,7 @@ var (
 type OrderAccrual struct {
 	Order   string  `json:"order"`
 	Status  string  `json:"status"`
-	Accrual float64 `json:"accrual"`
+	Accrual float32 `json:"accrual"`
 }
 
 type AccrualService interface {
@@ -32,16 +33,23 @@ type AccrualService interface {
 }
 
 type accrual struct {
-	Host   string
-	DBConn *pgx.Conn
-	Ctx    context.Context
+	Host         string
+	DBConn       *pgx.Conn
+	Ctx          context.Context
+	MoneyService moneylib.MoneyService
 }
 
-func NewAccrualService(ctx context.Context, conn *pgx.Conn, accrualHost string) AccrualService {
+func NewAccrualService(
+	ctx context.Context,
+	conn *pgx.Conn,
+	accrualHost string,
+	moneyService moneylib.MoneyService,
+) AccrualService {
 	return accrual{
-		Ctx:    ctx,
-		DBConn: conn,
-		Host:   accrualHost,
+		Ctx:          ctx,
+		DBConn:       conn,
+		Host:         accrualHost,
+		MoneyService: moneyService,
 	}
 }
 
@@ -121,7 +129,7 @@ func (a accrual) updateOrder(order OrderAccrual) error {
 	sql, args, err := psql.Update("orders").
 		Where(sq.Eq{"order_id": order.Order}).
 		Set("status", order.Status).
-		Set("accrual", order.Accrual).
+		Set("accrual", a.MoneyService.FloatToInt(order.Accrual)).
 		Set("updated_at", time.Now()).
 		ToSql()
 

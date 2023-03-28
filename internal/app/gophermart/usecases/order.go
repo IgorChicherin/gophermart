@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,14 +19,21 @@ type OrderUseCase interface {
 func NewCreateOrderUseCase(
 	conn *pgx.Conn,
 	userRepo repositories.UserRepository,
-	orderRepo repositories.OrderRepository) OrderUseCase {
-	return orderUseCase{DBConn: conn, UserRepo: userRepo, OrderRepo: orderRepo}
+	orderRepo repositories.OrderRepository,
+	moneyService moneylib.MoneyService) OrderUseCase {
+	return orderUseCase{
+		DBConn:       conn,
+		UserRepo:     userRepo,
+		OrderRepo:    orderRepo,
+		MoneyService: moneyService,
+	}
 }
 
 type orderUseCase struct {
-	DBConn    *pgx.Conn
-	UserRepo  repositories.UserRepository
-	OrderRepo repositories.OrderRepository
+	DBConn       *pgx.Conn
+	UserRepo     repositories.UserRepository
+	OrderRepo    repositories.OrderRepository
+	MoneyService moneylib.MoneyService
 }
 
 func (c orderUseCase) CreateOrder(login, orderNr string) (models.Order, error) {
@@ -87,7 +95,7 @@ func (c orderUseCase) GetOrdersList(login string) ([]models.OrderListItem, error
 		ordersListResponse = append(ordersListResponse, models.OrderListItem{
 			Number:     order.OrderID,
 			Status:     order.Status,
-			Accrual:    order.Accrual,
+			Accrual:    c.MoneyService.IntToFloat32(order.Accrual),
 			UploadedAt: order.CreatedAt,
 		})
 	}

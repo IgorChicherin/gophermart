@@ -7,6 +7,7 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib/sha256"
 	"github.com/IgorChicherin/gophermart/internal/pkg/db"
+	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -48,11 +49,12 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	hashService := sha256.NewSha256HashService(cfg.HashKey)
-	accrualService := accrual.NewAccrualService(ctxDB, conn, cfg.AccrualAddress)
+	moneyService := moneylib.NewMoneyService(100)
+	accrualService := accrual.NewAccrualService(ctxDB, conn, cfg.AccrualAddress, moneyService)
 
 	srv := &http.Server{
 		Addr:    cfg.Address,
-		Handler: router.NewRouter(conn, hashService, accrualService),
+		Handler: router.NewRouter(conn, hashService, accrualService, moneyService),
 	}
 
 	go func() {

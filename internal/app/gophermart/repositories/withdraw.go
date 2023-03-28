@@ -10,7 +10,7 @@ import (
 )
 
 type WithdrawRepository interface {
-	CreateWithdraw(userID int, orderNr string, sum float32) (models.Withdraw, error)
+	CreateWithdraw(userID int, orderNr string, sum int) (models.Withdraw, error)
 	GetWithdraw(orderNr string) (models.Withdraw, error)
 	GetWithdrawList(userID int) ([]models.Withdraw, error)
 	HasWithdrawals(userID int) (bool, error)
@@ -27,7 +27,7 @@ type withdraw struct {
 func (w withdraw) CreateWithdraw(
 	userID int,
 	orderNr string,
-	sum float32,
+	sum int,
 ) (models.Withdraw, error) {
 	ctx := context.Background()
 
