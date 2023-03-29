@@ -16,8 +16,6 @@ type UserRepository interface {
 	HasLogin(login string) (bool, error)
 	GetUser(login string) (models.User, error)
 	CreateUser(login, password string) (models.User, error)
-	Validate(hash string) (bool, error)
-	DecodeToken(token string) (string, string, error)
 }
 
 type userRepo struct {
@@ -131,23 +129,4 @@ func (ur userRepo) HasLogin(login string) (bool, error) {
 	}
 
 	return count > 0, nil
-}
-
-func (ur userRepo) Validate(hash string) (bool, error) {
-	login, hash, err := ur.AuthService.DecodeToken(hash)
-
-	if err != nil {
-		log.WithFields(log.Fields{"func": "Validate"}).Errorln(err)
-		return false, err
-	}
-
-	user, err := ur.GetUser(login)
-	if err != nil {
-		return false, err
-	}
-	return user.Password == hash, nil
-}
-
-func (ur userRepo) DecodeToken(token string) (string, string, error) {
-	return ur.AuthService.DecodeToken(token)
 }

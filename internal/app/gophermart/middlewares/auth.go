@@ -1,12 +1,12 @@
 package middlewares
 
 import (
-	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func AuthMiddleware(userRepo repositories.UserRepository) gin.HandlerFunc {
+func AuthMiddleware(userUseCase usecases.UserUseCase) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("Authorization")
 
@@ -15,7 +15,7 @@ func AuthMiddleware(userRepo repositories.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		ok, err := userRepo.Validate(token)
+		ok, err := userUseCase.Validate(token)
 
 		if err != nil || !ok {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]string{"code": "401", "message": "unauthorized"})

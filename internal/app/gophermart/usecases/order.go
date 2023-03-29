@@ -10,7 +10,6 @@ import (
 )
 
 type OrderUseCase interface {
-	GetUserRepository() repositories.UserRepository
 	GetOrderRepository() repositories.OrderRepository
 	CreateOrder(login, orderNr string) (models.Order, error)
 	GetOrdersList(login string) ([]models.OrderListItem, error)
@@ -100,10 +99,6 @@ func (c orderUseCase) GetOrdersList(login string) ([]models.OrderListItem, error
 		})
 	}
 	return ordersListResponse, nil
-}
-
-func (c orderUseCase) GetUserRepository() repositories.UserRepository {
-	return c.UserRepo
 }
 
 func (c orderUseCase) GetOrderRepository() repositories.OrderRepository {

@@ -47,6 +47,11 @@ func (h Sha256HashService) DecodeToken(token string) (string, string, error) {
 	}
 
 	loginPwdArr := strings.Split(string(data), ":")
+
+	if len(loginPwdArr) < 2 {
+		return "", "", errors.New("can't decode token")
+	}
+
 	login, pwdHash := loginPwdArr[0], loginPwdArr[1]
 
 	return login, pwdHash, nil

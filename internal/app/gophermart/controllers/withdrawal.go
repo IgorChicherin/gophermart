@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
-	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/gin-gonic/gin"
@@ -12,12 +11,12 @@ import (
 )
 
 type WithdrawController struct {
-	UserRepository  repositories.UserRepository
+	UserUseCase     usecases.UserUseCase
 	WithdrawUseCase usecases.WithdrawUseCase
 }
 
 func (w WithdrawController) Route(api *gin.RouterGroup) {
-	middleware := middlewares.AuthMiddleware(w.UserRepository)
+	middleware := middlewares.AuthMiddleware(w.UserUseCase)
 	withdraw := api.Group("/user").Use(middleware)
 	{
 		withdraw.GET("/withdrawals", w.withdrawals)
@@ -37,7 +36,8 @@ func (w WithdrawController) Route(api *gin.RouterGroup) {
 // @Success 204
 // @Router /user/withdrawals [get]
 func (w WithdrawController) withdrawals(c *gin.Context) {
-	user, err := GetUser(c, w.UserRepository)
+	token := c.GetHeader("Authorization")
+	user, err := w.UserUseCase.GetUser(token)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")
@@ -72,7 +72,8 @@ func (w WithdrawController) withdrawals(c *gin.Context) {
 // @Success 200 {json} OK
 // @Router /user/balance/withdraw [post]
 func (w WithdrawController) balanceWithdraw(c *gin.Context) {
-	user, err := GetUser(c, w.UserRepository)
+	token := c.GetHeader("Authorization")
+	user, err := w.UserUseCase.GetUser(token)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")

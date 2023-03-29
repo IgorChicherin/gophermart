@@ -10,12 +10,13 @@ import (
 )
 
 type OrdersController struct {
+	UserUseCase    usecases.UserUseCase
 	OrderUseCase   usecases.OrderUseCase
 	AccrualService accrual.AccrualService
 }
 
 func (oc OrdersController) Route(api *gin.RouterGroup) {
-	middleware := middlewares.AuthMiddleware(oc.OrderUseCase.GetUserRepository())
+	middleware := middlewares.AuthMiddleware(oc.UserUseCase)
 	orders := api.Group("/user").Use(middleware)
 	{
 		orders.POST("/orders", oc.orderCreate)
@@ -45,9 +46,8 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 	}
 
 	orderNr := string(b)
-	userRepo := oc.OrderUseCase.GetUserRepository()
-
-	user, err := GetUser(c, userRepo)
+	token := c.GetHeader("Authorization")
+	user, err := oc.UserUseCase.GetUser(token)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")
@@ -116,7 +116,8 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 // @Failure 500
 // @Router /user/orders [get]
 func (oc OrdersController) orderGet(c *gin.Context) {
-	user, err := GetUser(c, oc.OrderUseCase.GetUserRepository())
+	token := c.GetHeader("Authorization")
+	user, err := oc.UserUseCase.GetUser(token)
 
 	if err != nil {
 		controllerLog(c).WithError(err).Errorln("get user error")
