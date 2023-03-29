@@ -37,22 +37,24 @@ func NewRouter(
 	orderRepo := repositories.NewOrderRepository(conn)
 	withdrawRepo := repositories.NewWithdrawRepository(conn)
 
+	userUseCase := usecases.NewUserUseCase(authService, userRepo)
 	orderControllerUseCase := usecases.NewCreateOrderUseCase(conn, userRepo, orderRepo, moneyService)
 	balanceControllerUseCase := usecases.NewBalanceUseCase(conn, userRepo, moneyService)
 	withdrawUseCase := usecases.NewWithdrawUseCase(conn, withdrawRepo, balanceControllerUseCase, moneyService)
-	userUseCase := usecases.NewUserUseCase(authService, userRepo)
 
-	auth := controllers.AuthController{UserRepository: userRepo, AuthService: authService}
+	auth := controllers.AuthController{UserUseCase: userUseCase}
 	orders := controllers.OrdersController{OrderUseCase: orderControllerUseCase, AccrualService: accrualService}
 	balance := controllers.BalanceController{UserUseCase: userUseCase, BalanceUseCase: balanceControllerUseCase}
 	withdraw := controllers.WithdrawController{UserUseCase: userUseCase, WithdrawUseCase: withdrawUseCase}
 
+	middleware := middlewares.AuthMiddleware(userUseCase)
+
 	api := router.Group("/api")
 	{
 		auth.Route(api)
-		orders.Route(api)
-		balance.Route(api)
-		withdraw.Route(api)
+		orders.Route(api, middleware)
+		balance.Route(api, middleware)
+		withdraw.Route(api, middleware)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

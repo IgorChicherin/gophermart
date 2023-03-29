@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/ShiraazMoollatjie/goluhn"
@@ -15,8 +14,7 @@ type OrdersController struct {
 	AccrualService accrual.AccrualService
 }
 
-func (oc OrdersController) Route(api *gin.RouterGroup) {
-	middleware := middlewares.AuthMiddleware(oc.UserUseCase)
+func (oc OrdersController) Route(api *gin.RouterGroup, middleware gin.HandlerFunc) {
 	orders := api.Group("/user").Use(middleware)
 	{
 		orders.POST("/orders", oc.orderCreate)
