@@ -6,7 +6,6 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
-	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 	"github.com/gin-contrib/gzip"
@@ -19,7 +18,6 @@ import (
 func NewRouter(
 	conn *pgx.Conn,
 	authService authlib.AuthService,
-	accrualService accrual.AccrualService,
 	moneyService moneylib.MoneyService,
 ) *gin.Engine {
 	router := gin.New()
@@ -36,12 +34,13 @@ func NewRouter(
 	userRepo := repositories.NewUserRepository(conn, authService)
 	orderRepo := repositories.NewOrderRepository(conn)
 	withdrawRepo := repositories.NewWithdrawRepository(conn)
+
 	orderControllerUseCase := usecases.NewCreateOrderUseCase(conn, userRepo, orderRepo, moneyService)
 	balanceControllerUseCase := usecases.NewBalanceUseCase(conn, userRepo, moneyService)
 	withdrawUseCase := usecases.NewWithdrawUseCase(conn, withdrawRepo, balanceControllerUseCase, moneyService)
 
 	auth := controllers.AuthController{UserRepository: userRepo, AuthService: authService}
-	orders := controllers.OrdersController{OrderUseCase: orderControllerUseCase, AccrualService: accrualService}
+	orders := controllers.OrdersController{OrderUseCase: orderControllerUseCase}
 	balance := controllers.BalanceController{UserRepository: userRepo, BalanceUseCase: balanceControllerUseCase}
 	withdraw := controllers.WithdrawController{UserRepository: userRepo, WithdrawUseCase: withdrawUseCase}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 	sq "github.com/Masterminds/squirrel"
@@ -28,8 +29,8 @@ type OrderAccrual struct {
 }
 
 type AccrualService interface {
-	GetAccrual(orderNr string) (OrderAccrual, error)
-	ProcessOrder(orderNr string)
+	Run()
+	ProcessOrders() error
 }
 
 type accrual struct {
@@ -37,6 +38,7 @@ type accrual struct {
 	DBConn       *pgx.Conn
 	Ctx          context.Context
 	MoneyService moneylib.MoneyService
+	quitCh       chan struct{}
 }
 
 func NewAccrualService(
@@ -53,7 +55,89 @@ func NewAccrualService(
 	}
 }
 
-func (a accrual) GetAccrual(orderNr string) (OrderAccrual, error) {
+func (a accrual) Run() {
+	for {
+		select {
+		case <-a.Ctx.Done():
+			log.Infof("accrual service shutting down")
+			return
+		default:
+			err := a.ProcessOrders()
+			if err != nil {
+				log.WithFields(log.Fields{"func": "processOrders"}).Errorln(err)
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}
+}
+
+func (a accrual) ProcessOrders() error {
+	orders, err := a.getOrders()
+
+	if err != nil {
+		log.WithFields(log.Fields{"func": "processOrders"}).Errorln(err)
+		return err
+	}
+
+	for _, order := range orders {
+		err := a.processOrder(order.OrderID)
+		if err != nil {
+			log.WithFields(log.Fields{"func": "processOrders"}).Errorln(err)
+		}
+	}
+	return err
+}
+
+func (a accrual) getOrders() ([]models.Order, error) {
+	ctx := context.Background()
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	sql, args, err := psql.
+		Select().
+		Columns("id", "order_id", "user_id", "status", "updated_at", "created_at", "accrual").
+		From("orders").
+		Where(sq.Or{sq.Eq{"status": repositories.StatusNew}, sq.Eq{"status": repositories.StatusProcessing}}).
+		ToSql()
+
+	if err != nil {
+		log.WithFields(log.Fields{"func": "getOrders"}).Errorln(err)
+		return []models.Order{}, err
+	}
+
+	rows, err := a.DBConn.Query(ctx, sql, args...)
+
+	if err != nil {
+		log.WithFields(log.Fields{"func": "getOrders"}).Errorln(err)
+		return []models.Order{}, err
+	}
+
+	defer rows.Close()
+
+	var ordersList []models.Order
+
+	for rows.Next() {
+		var order models.Order
+
+		err = rows.Scan(
+			&order.ID,
+			&order.OrderID,
+			&order.UserID,
+			&order.Status,
+			&order.UpdatedAt,
+			&order.CreatedAt,
+			&order.Accrual)
+
+		if err != nil {
+			log.WithFields(log.Fields{"func": "getOrders"}).Errorln(err)
+			return []models.Order{}, err
+		}
+
+		ordersList = append(ordersList, order)
+	}
+	return ordersList, nil
+}
+
+func (a accrual) getAccrual(orderNr string) (OrderAccrual, error) {
 	URL := fmt.Sprintf(checkOrderURL, orderNr)
 
 	req := resty.
@@ -86,41 +170,29 @@ func (a accrual) GetAccrual(orderNr string) (OrderAccrual, error) {
 	return order, nil
 }
 
-func (a accrual) ProcessOrder(orderNr string) {
-	for {
-		select {
-		case <-a.Ctx.Done():
-			log.WithFields(log.Fields{"func": "ProcessOrder"}).
-				Errorf("processing order #%s has been cancelled", orderNr)
-			return
-		default:
-			orderAccrual, err := a.GetAccrual(orderNr)
+func (a accrual) processOrder(orderNr string) error {
+	orderAccrual, err := a.getAccrual(orderNr)
 
-			if errors.Is(err, ErrNotFoundOrder) {
-				log.WithFields(log.Fields{"func": "ProcessOrder"}).Errorln(err)
-				time.Sleep(1 * time.Second)
-				continue
-			}
+	if errors.Is(err, ErrNotFoundOrder) {
+		log.WithFields(log.Fields{"func": "processOrder"}).Errorln(err)
+		return err
+	}
 
-			if err != nil {
-				log.WithFields(log.Fields{"func": "ProcessOrder"}).Errorln(err)
-				return
-			}
+	if err != nil {
+		log.WithFields(log.Fields{"func": "processOrder"}).Errorln(err)
+		return err
+	}
 
-			orderStatus := repositories.OrderStatus(orderAccrual.Status)
+	orderStatus := repositories.OrderStatus(orderAccrual.Status)
 
-			if orderStatus == repositories.StatusProcessed || orderStatus == repositories.StatusInvalid {
-				err = a.updateOrder(orderAccrual)
-				if err != nil {
-					log.WithFields(log.Fields{"func": "ProcessOrder"}).Errorln(err)
-				}
-				return
-			}
-
-			time.Sleep(1 * time.Second)
-			continue
+	if orderStatus == repositories.StatusProcessed || orderStatus == repositories.StatusInvalid {
+		err = a.updateOrder(orderAccrual)
+		if err != nil {
+			log.WithFields(log.Fields{"func": "processOrder"}).Errorln(err)
+			return err
 		}
 	}
+	return nil
 }
 
 func (a accrual) updateOrder(order OrderAccrual) error {

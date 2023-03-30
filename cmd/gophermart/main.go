@@ -37,7 +37,13 @@ func main() {
 	if err := db.Migrate(cfg.DatabaseURI); err != nil {
 		log.Fatalf("migration failed: %s", err)
 	}
-	defer conn.Close(ctxDB)
+
+	defer func(conn *pgx.Conn, ctx context.Context) {
+		err := conn.Close(ctx)
+		if err != nil {
+			log.WithFields(log.Fields{"func": "main"}).Errorln(err)
+		}
+	}(conn, ctxDB)
 
 	err = conn.Ping(ctxDB)
 
@@ -52,9 +58,11 @@ func main() {
 	moneyService := moneylib.NewMoneyService(100)
 	accrualService := accrual.NewAccrualService(ctxDB, conn, cfg.AccrualAddress, moneyService)
 
+	go accrualService.Run()
+
 	srv := &http.Server{
 		Addr:    cfg.Address,
-		Handler: router.NewRouter(conn, hashService, accrualService, moneyService),
+		Handler: router.NewRouter(conn, hashService, moneyService),
 	}
 
 	go func() {
@@ -63,16 +71,10 @@ func main() {
 		}
 	}()
 	log.Infoln("Server Started")
-
 	<-done
 	log.Infoln("Server Stopped")
 
 	ctx := context.Background()
-	//ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-	//defer func() {
-	//	cancel()
-	//}()
-
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("Server Shutdown Failed:%+v", err)
 	}
