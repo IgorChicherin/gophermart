@@ -3,15 +3,13 @@ package controllers
 import (
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
-	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type OrdersController struct {
-	OrderUseCase   usecases.OrderUseCase
-	AccrualService accrual.AccrualService
+	OrderUseCase usecases.OrderUseCase
 }
 
 func (oc OrdersController) Route(api *gin.RouterGroup) {
@@ -96,9 +94,6 @@ func (oc OrdersController) orderCreate(c *gin.Context) {
 		return
 	}
 
-	go func() {
-		oc.AccrualService.ProcessOrder(orderNr)
-	}()
 	c.Status(http.StatusAccepted)
 }
 
