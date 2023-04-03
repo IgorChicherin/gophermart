@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/ShiraazMoollatjie/goluhn"
@@ -14,7 +15,8 @@ type WithdrawController struct {
 	WithdrawUseCase usecases.WithdrawUseCase
 }
 
-func (w WithdrawController) Route(api *gin.RouterGroup, middleware gin.HandlerFunc) {
+func (w WithdrawController) Route(api *gin.RouterGroup) {
+	middleware := middlewares.AuthMiddleware(w.UserUseCase)
 	withdraw := api.Group("/user").Use(middleware)
 	{
 		withdraw.GET("/withdrawals", w.withdrawals)

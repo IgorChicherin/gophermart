@@ -47,14 +47,12 @@ func NewRouter(
 	balance := controllers.BalanceController{UserUseCase: userUseCase, BalanceUseCase: balanceControllerUseCase}
 	withdraw := controllers.WithdrawController{UserUseCase: userUseCase, WithdrawUseCase: withdrawUseCase}
 
-	middleware := middlewares.AuthMiddleware(userUseCase)
-
 	api := router.Group("/api")
 	{
 		auth.Route(api)
-		orders.Route(api, middleware)
-		balance.Route(api, middleware)
-		withdraw.Route(api, middleware)
+		orders.Route(api)
+		balance.Route(api)
+		withdraw.Route(api)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
