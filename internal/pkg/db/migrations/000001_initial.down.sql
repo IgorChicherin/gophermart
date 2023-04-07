@@ -1,0 +1,4 @@
+BEGIN;
+    DROP TABLE IF EXISTS users, orders CASCADE;
+    DROP TYPE IF EXISTS status_type;
+COMMIT;
