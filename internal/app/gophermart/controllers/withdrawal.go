@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
+
+	"github.com/ShiraazMoollatjie/goluhn"
+	"github.com/gin-gonic/gin"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
-	"github.com/ShiraazMoollatjie/goluhn"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type WithdrawController struct {

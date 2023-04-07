@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
-	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
+	"net/http"
+	"time"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/go-resty/resty/v2"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
+
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
+	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
 )
 
 const checkOrderURL = "/api/orders/%s"

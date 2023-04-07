@@ -7,9 +7,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
-	log "github.com/sirupsen/logrus"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 )
 
 type Sha256HashService struct {

@@ -2,11 +2,13 @@ package repositories
 
 import (
 	"context"
-	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
+	"time"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
-	"time"
+
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 )
 
 type WithdrawRepository interface {

@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"net/http"
+
+	"github.com/ShiraazMoollatjie/goluhn"
+	"github.com/gin-gonic/gin"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
-	"github.com/ShiraazMoollatjie/goluhn"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type OrdersController struct {

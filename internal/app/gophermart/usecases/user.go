@@ -2,10 +2,12 @@ package usecases
 
 import (
 	"errors"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
-	log "github.com/sirupsen/logrus"
 )
 
 var (

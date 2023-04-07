@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type AuthController struct {

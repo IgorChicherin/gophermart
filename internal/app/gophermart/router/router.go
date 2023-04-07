@@ -1,6 +1,12 @@
 package router
 
 import (
+	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v4"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	docs "github.com/IgorChicherin/gophermart/api"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/controllers"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
@@ -9,11 +15,6 @@ import (
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
-	"github.com/gin-contrib/gzip"
-	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v4"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter(

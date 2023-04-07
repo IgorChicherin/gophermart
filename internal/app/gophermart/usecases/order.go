@@ -2,11 +2,13 @@ package usecases
 
 import (
 	"errors"
+
+	"github.com/jackc/pgx/v4"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/repositories"
 	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
-	"github.com/jackc/pgx/v4"
-	log "github.com/sirupsen/logrus"
 )
 
 type OrderUseCase interface {

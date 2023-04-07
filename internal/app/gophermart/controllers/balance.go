@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/middlewares"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/usecases"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type BalanceController struct {

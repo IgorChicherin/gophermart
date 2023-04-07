@@ -2,18 +2,20 @@ package main
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/jackc/pgx/v4"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/config"
 	"github.com/IgorChicherin/gophermart/internal/app/gophermart/router"
 	"github.com/IgorChicherin/gophermart/internal/pkg/accrual"
 	"github.com/IgorChicherin/gophermart/internal/pkg/authlib/sha256"
 	"github.com/IgorChicherin/gophermart/internal/pkg/db"
 	"github.com/IgorChicherin/gophermart/internal/pkg/moneylib"
-	"github.com/jackc/pgx/v4"
-	log "github.com/sirupsen/logrus"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {

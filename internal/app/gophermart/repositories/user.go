@@ -3,11 +3,13 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
-	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v4"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/IgorChicherin/gophermart/internal/app/gophermart/models"
+	"github.com/IgorChicherin/gophermart/internal/pkg/authlib"
 )
 
 var ErrUserNotFound = errors.New("user not found")

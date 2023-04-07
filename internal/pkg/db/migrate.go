@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"embed"
 	"errors"
+	"net/http"
+
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/pgx"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/golang-migrate/migrate/v4/source/httpfs"
-	"net/http"
 )
 
 //go:embed migrations/*.sql
